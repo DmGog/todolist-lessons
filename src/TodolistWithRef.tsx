@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState, KeyboardEvent} from "react";
+import React, {useRef} from "react";
 import {FilterValuesType} from "./App";
 import {Button} from "./Button";
 
@@ -20,7 +20,7 @@ export type TaskType = {
 export const Todolist = ({title, tasks, removeTask, changeFilter, addTask}: TodolistPropsType) => {
 
 
-    const [taskTitle, SetTaskTitle] = useState("")
+    const taskInputRef = useRef<HTMLInputElement>(null)
 
     const tasksElement: Array<JSX.Element> | JSX.Element = tasks.length !== 0 ?
 
@@ -34,15 +34,9 @@ export const Todolist = ({title, tasks, removeTask, changeFilter, addTask}: Todo
         }) : <span>нет тасок</span>
 
     const addTaskHandler = () => {
-        addTask(taskTitle)
-        SetTaskTitle("")
-    }
-
-    const changeTaskTitleHandler = (e: ChangeEvent<HTMLInputElement>) => SetTaskTitle(e.currentTarget.value)
-
-    const keyDownAddTaskHandler = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-            addTaskHandler()
+        if (taskInputRef.current) {
+                addTask(taskInputRef.current.value)
+            taskInputRef.current.value = ""
         }
     }
 
@@ -51,9 +45,10 @@ export const Todolist = ({title, tasks, removeTask, changeFilter, addTask}: Todo
         <div className="todolist">
             <h3>{title}</h3>
             <div>
-                <input value={taskTitle} onChange={changeTaskTitleHandler} onKeyDown={keyDownAddTaskHandler}/>
-                <Button onClickHandler={addTaskHandler} title={"+"} disabled={!Boolean(taskTitle.trim())}/>
-                {taskTitle.length > 15 && <div>Много символов</div>}
+                <input ref={taskInputRef}/>
+                <Button onClickHandler={() => {
+                    addTaskHandler()
+                }} title={"+"}/>
 
             </div>
             <ul>
