@@ -43,10 +43,28 @@ function App() {
         setTasks(copyState)
     }
 
+//1 способ изменения статуса :  изъян вмешиваемся в объект тасок
+    /* const changeTaskStatus = (taskId: string) => {
+         const task: TaskType | undefined = tasks.find(t => t.id === taskId)
+         if (task) {
+             task.isDone = !task.isDone
+             setTasks([...tasks])
+         }
+     }*/
+
+    // 2 способ
+
+    const changeTaskStatus = (taskId: string, newIsDone: boolean) => {
+        const nextState: Array<TaskType> = tasks.map(t => t.id === taskId ? {...t, isDone: newIsDone} : t)
+        setTasks(nextState)
+    }
+
+
     return (
         <div className="App">
             <Todolist title={todoListTitle} tasks={filterTasksForTodolist} removeTask={removeTask}
-                      changeFilter={changeFilter} addTask={addTask}/>
+                      changeFilter={changeFilter} addTask={addTask} changeTaskStatus={changeTaskStatus}
+                      filter={filter}/>
         </div>
     );
 }
