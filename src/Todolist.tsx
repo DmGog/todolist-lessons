@@ -3,13 +3,15 @@ import {FilterValuesType} from "./App";
 import {Button} from "./Button";
 
 type TodolistPropsType = {
+    todolistId: string
     title: string
-    tasks: Array<TaskType>
-    removeTask: (tasksId: string) => void
-    changeFilter: (newFilter: FilterValuesType) => void
-    addTask: (title: string) => void
-    changeTaskStatus: (taskId: string, isDone: boolean) => void
     filter: FilterValuesType
+    tasks: TaskType[]
+    removeTask: (tasksId: string, todolistId: string) => void
+    changeFilter: (newFilter: FilterValuesType, todolistId: string) => void
+    addTask: (title: string, todolistId: string) => void
+    changeTaskStatus: (taskId: string, isDone: boolean, todolistId: string) => void
+    removeTodolist: (todolistId: string) => void
 }
 
 export type TaskType = {
@@ -26,7 +28,9 @@ export const Todolist = ({
                              changeFilter,
                              addTask,
                              changeTaskStatus,
-                             filter
+                             filter,
+                             removeTodolist,
+                             todolistId
                          }: TodolistPropsType) => {
 
 
@@ -40,9 +44,9 @@ export const Todolist = ({
             return (
                 <li key={task.id}>
                     <input type="checkbox" checked={task.isDone}
-                           onChange={(e) => changeTaskStatus(task.id, e.currentTarget.checked)}/>
+                           onChange={(e) => changeTaskStatus(task.id, e.currentTarget.checked, todolistId)}/>
                     <span className={task.isDone ? "task-complete" : "task"}>{task.title}</span>
-                    <Button onClickHandler={() => removeTask(task.id)} title={"x"}/>
+                    <Button onClickHandler={() => removeTask(task.id, todolistId)} title={"x"}/>
                 </li>
             )
         }) : <span>нет тасок</span>
@@ -50,7 +54,7 @@ export const Todolist = ({
     const addTaskHandler = () => {
         const trimmedTitle = taskTitle.trim()
         if (trimmedTitle) {
-            addTask(taskTitle)
+            addTask(taskTitle, todolistId)
         } else {
             setTaskInputError("Title is requied")
         }
@@ -72,6 +76,7 @@ export const Todolist = ({
     return (
 
         <div className="todolist">
+            <Button title={"Del Todo"} onClickHandler={() => removeTodolist(todolistId)}/>
             <h3>{title}</h3>
             <div>
                 <input value={taskTitle}
@@ -88,12 +93,14 @@ export const Todolist = ({
                 {tasksElement}
             </ul>
             <div>
-                <Button clas={filter === "all" ? "button-active" : ""} onClickHandler={() => changeFilter("all")}
+                <Button clas={filter === "all" ? "button-active" : ""}
+                        onClickHandler={() => changeFilter("all", todolistId)}
                         title={"All"}/>
-                <Button clas={filter === "active" ? "button-active" : ""} onClickHandler={() => changeFilter("active")}
+                <Button clas={filter === "active" ? "button-active" : ""}
+                        onClickHandler={() => changeFilter("active", todolistId)}
                         title={"Active"}/>
                 <Button clas={filter === "completed" ? "button-active" : ""}
-                        onClickHandler={() => changeFilter("completed")} title={"Completed"}/>
+                        onClickHandler={() => changeFilter("completed", todolistId)} title={"Completed"}/>
             </div>
         </div>
 
