@@ -3,6 +3,8 @@ import "./App.css";
 import {TaskType, Todolist} from "./Todolist";
 import {v1} from "uuid";
 import {AddItemForm} from "./AddItemForm";
+import ButtonAppBar from "./ButtonAppBar";
+import {Container, createTheme, CssBaseline, Grid, Paper, ThemeProvider} from "@mui/material";
 
 export type FilterValuesType = "all" | "active" | "completed"
 export type TodolistType = {
@@ -23,11 +25,11 @@ function App() {
     const [todolists, setTodolists] = useState<TodolistType[]>(
         [{
             id: todolistId1,
-            title: "Что купить",
+            title: "Что изучил",
             filter: "all"
         }, {
             id: todolistId2,
-            title: "Что выбросить",
+            title: "Что выучить",
             filter: "all",
         }
         ])
@@ -72,15 +74,7 @@ function App() {
         const newTask: TaskType = {id: v1(), title: title, isDone: false}
         setTasks({...tasks, [todolistId]: [newTask, ...tasks[todolistId]]})
     }
-//1 способ изменения статуса :  изъян вмешиваемся в объект тасок
-    /* const changeTaskStatus = (taskId: string) => {
-         const task: TaskType | undefined = tasks.find(t => t.id === taskId)
-         if (task) {
-             task.isDone = !task.isDone
-             setTasks([...tasks])
-         }
-     }*/
-    // 2 способ
+
     const changeTaskStatus = (taskId: string, newIsDone: boolean, todolistId: string) => {
         setTasks({...tasks, [todolistId]: tasks[todolistId].map(t => t.id === taskId ? {...t, isDone: newIsDone} : t)})
     }
@@ -114,27 +108,58 @@ function App() {
             tasksForTodolist = tasks[tl.id].filter(t => t.isDone)
         }
 
-        return (
-            <Todolist
-                key={tl.id}
-                todolistId={tl.id}
-                title={tl.title}
-                tasks={tasksForTodolist}
-                filter={tl.filter}
-                removeTask={removeTask}
-                changeFilter={changeFilter}
-                addTask={addTask}
-                changeTaskStatus={changeTaskStatus}
-                removeTodolist={removeTodolist}
-                updateTask={updateTask}
-                updateTodolist={updateTodolist}
-            />
+        return (<Grid item key={tl.id}>
+                <Paper elevation={6} sx={{p: "30px"}}>
+                    <Todolist
+                        key={tl.id}
+                        todolistId={tl.id}
+                        title={tl.title}
+                        tasks={tasksForTodolist}
+                        filter={tl.filter}
+                        removeTask={removeTask}
+                        changeFilter={changeFilter}
+                        addTask={addTask}
+                        changeTaskStatus={changeTaskStatus}
+                        removeTodolist={removeTodolist}
+                        updateTask={updateTask}
+                        updateTodolist={updateTodolist}
+                    />
+                </Paper>
+            </Grid>
+
         )
     })
+
+    type ThemeMode = "dark" | "light"
+    const [themeMode, setThemeMode] = useState<ThemeMode>("light")
+
+    const theme = createTheme({
+        palette: {
+            mode: themeMode === "light" ? "light" : "dark",
+            primary: {
+                main: "#83cee8",
+            },
+        },
+    })
+
+    const changeModeHandler = () => {
+        setThemeMode(themeMode == "light" ? "dark" : "light")
+    }
+
     return (
-        <div className="App">
-            <AddItemForm addItem={addTodolist}/>
-            {todoListElement}
+        <div className={"App"}>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Container fixed>
+                    <ButtonAppBar callBack={changeModeHandler}/>
+                    <Grid container sx={{mb: "30px"}}>
+                        <AddItemForm addItem={addTodolist}/>
+                    </Grid>
+                    <Grid container spacing={4}>
+                        {todoListElement}
+                    </Grid>
+                </Container>
+            </ThemeProvider>
         </div>
     );
 }
